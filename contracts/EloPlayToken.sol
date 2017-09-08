@@ -28,7 +28,7 @@ library SafeMath {
     }
 
     /**
-     * Subtract a number from another number, checking for underflows
+     * Substract a number from another number, checking for underflows
      *
      * @param a           first number
      * @param b           second number
@@ -128,7 +128,7 @@ contract ERC20Token {
     /**
      * Transfer the balance from owner's account to another account
      *
-     * @param _to         targed address
+     * @param _to         target address
      * @param _amount     amount of tokens
      * @return            true on success
      */
