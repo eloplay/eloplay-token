@@ -118,22 +118,12 @@ contract ERC20Token {
     /**
      * Balances for each account
      */
-    mapping(address => uint256) balances;
+    mapping(address => uint256) public balanceOf;
 
     /**
      * Owner of account approves the transfer of an amount to another account
      */
-    mapping(address => mapping (address => uint256)) allowed;
-
-    /**
-     * Get the account balance of another account with address _owner
-     *
-     * @param _owner      tokens address
-     * @return            current balance belonging to address
-     */
-    function balanceOf(address _owner) constant returns (uint256 balance) {
-        return balances[_owner];
-    }
+    mapping(address => mapping (address => uint256)) public allowance;
 
     /**
      * Transfer the balance from owner's account to another account
@@ -143,12 +133,12 @@ contract ERC20Token {
      * @return            true on success
      */
     function transfer(address _to, uint256 _amount) returns (bool success) {
-        if (balances[msg.sender] >= _amount                // User has balance
+        if (balanceOf[msg.sender] >= _amount                // User has balance
             && _amount > 0                                 // Non-zero transfer
-            && balances[_to] + _amount > balances[_to]     // Overflow check
+            && balanceOf[_to] + _amount > balanceOf[_to]     // Overflow check
         ) {
-            balances[msg.sender] = balances[msg.sender].sub(_amount);
-            balances[_to] = balances[_to].add(_amount);
+            balanceOf[msg.sender] = balanceOf[msg.sender].sub(_amount);
+            balanceOf[_to] = balanceOf[_to].add(_amount);
             Transfer(msg.sender, _to, _amount);
             return true;
         } else {
@@ -166,7 +156,7 @@ contract ERC20Token {
      * @return            true on success
      */
     function approve(address _spender, uint256 _amount) returns (bool success) {
-        allowed[msg.sender][_spender] = _amount;
+        allowance[msg.sender][_spender] = _amount;
         Approval(msg.sender, _spender, _amount);
         return true;
     }
@@ -182,31 +172,19 @@ contract ERC20Token {
      * @return            true on success
      */
     function transferFrom(address _from, address _to, uint256 _amount) returns (bool success) {
-        if (balances[_from] >= _amount                  // From a/c has balance
-            && allowed[_from][msg.sender] >= _amount    // Transfer approved
+        if (balanceOf[_from] >= _amount                  // From a/c has balance
+            && allowance[_from][msg.sender] >= _amount    // Transfer approved
             && _amount > 0                              // Non-zero transfer
-            && balances[_to] + _amount > balances[_to]  // Overflow check
+            && balanceOf[_to] + _amount > balanceOf[_to]  // Overflow check
         ) {
-            balances[_from] = balances[_from].sub(_amount);
-            allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);
-            balances[_to] = balances[_to].add(_amount);
+            balanceOf[_from] = balanceOf[_from].sub(_amount);
+            allowance[_from][msg.sender] = allowance[_from][msg.sender].sub(_amount);
+            balanceOf[_to] = balanceOf[_to].add(_amount);
             Transfer(_from, _to, _amount);
             return true;
         } else {
             return false;
         }
-    }
-
-    /**
-     * Returns the amount of tokens approved by the owner that can be
-     * transferred to the spender's account
-     *
-     * @param _owner      owner address
-     * @param _spender    spender address
-     * @return            amount of tokens allowed to transfer
-     */
-    function allowance(address _owner, address _spender) constant returns (uint256 remaining) {
-        return allowed[_owner][_spender];
     }
 
     /**
@@ -348,6 +326,21 @@ contract EloPlayToken is ERC20Token, Owned {
     }
 
     /**
+     * Owner to add precommitment funding token balance before the crowdsale commences
+     *
+     * @param participant         address that will receive tokens
+     * @param balance             number of tokens
+     *
+     */
+    function addPrecommitment(address participant, uint balance) onlyOwner {
+        require(now < START_TS);
+        require(balance > 0);
+        balanceOf[participant] = balanceOf[participant].add(balance);
+        totalSupply = totalSupply.add(balance);
+        Transfer(0x0, participant, balance);
+    }
+
+    /**
      * Buy tokens from the contract
      */
     function () payable {
@@ -393,8 +386,8 @@ contract EloPlayToken is ERC20Token, Owned {
         totalSupply = totalSupply.add(target_address_tokens);
 
         // Add to balances
-        balances[_participant] = balances[_participant].add(tokens);
-        balances[target_address] = balances[target_address].add(target_address_tokens);
+        balanceOf[_participant] = balanceOf[_participant].add(tokens);
+        balanceOf[target_address] = balanceOf[target_address].add(target_address_tokens);
 
         // Log events
         TokensBought(_participant, msg.value, totalEthers, tokens, target_address_tokens,
