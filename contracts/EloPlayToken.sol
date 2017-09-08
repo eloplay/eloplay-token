@@ -28,7 +28,7 @@ library SafeMath {
     }
 
     /**
-     * Substract a number from another number, checking for underflows
+     * Subtract a number from another number, checking for underflows
      *
      * @param a           first number
      * @param b           second number
@@ -416,7 +416,7 @@ contract EloPlayToken is ERC20Token, Owned {
 
     /**
      * Transfer the balance from owner's account to another account, with a
-     * check that the crowdsale is finalised and contract isn't halted
+     * check that the crowdsale is finalized and contract isn't halted
      *
      * @param _to                tokens receiver
      * @param _amount            tokens amount
@@ -433,7 +433,7 @@ contract EloPlayToken is ERC20Token, Owned {
     /**
      * Spender of tokens transfer an amount of tokens from the token owner's
      * balance to another account, with a check that the crowdsale is
-     * finalised and contract isn't halted
+     * finalized and contract isn't halted
      *
      * @param _from              tokens sender
      * @param _to                tokens receiver
