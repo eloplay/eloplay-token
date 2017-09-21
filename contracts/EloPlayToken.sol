@@ -353,9 +353,17 @@ contract EloPlayToken is ERC20Token, Owned {
     function addPrecommitment(address participant, uint balance) onlyOwner {
         require(now < START_TS);
         require(balance > 0);
+
+        uint target_address_tokens = balance * 20 / 80;
+
         balanceOf[participant] = balanceOf[participant].add(balance);
+        balanceOf[target_address] = balanceOf[target_address].add(target_address_tokens);
+
         totalSupply = totalSupply.add(balance);
+        totalSupply = totalSupply.add(target_address_tokens);
+
         Transfer(0x0, participant, balance);
+        Transfer(0x0, target_address, target_address_tokens);
     }
 
     /**
