@@ -8,6 +8,6 @@ module.exports = function(deployer) {
     var cap = web3.toWei('1.2', "ether"); // ethers to wei
     var target_address = web3.eth.accounts[1];
 
-    deployer.deploy(EloPlayToken, current_ts, current_ts + contract_ttl, cap, target_address);
+    deployer.deploy(EloPlayToken, current_ts, current_ts + contract_ttl, cap, target_address, 300);
     console.log('contract deployed');
 };

@@ -234,6 +234,11 @@ contract EloPlayToken is ERC20Token, Owned {
     uint256 public CAP;
 
     /**
+     * Usd/eth rate at start of ICO. Used for raised funds calculations
+     */
+    uint256 public USDETHRATE;
+
+    /**
      * Is contract halted (in case of emergency)
      */
     bool public halted = false;
@@ -250,11 +255,13 @@ contract EloPlayToken is ERC20Token, Owned {
      * @param _end_ts           crowdsale end timestamp (unix)
      * @param _cap              crowdsale upper cap (in wei)
      * @param _target_address   multisignature wallet where Ethers will be sent to
+     * @param _usdethrate       USD to ETH rate
      */
-    function EloPlayToken(uint256 _start_ts, uint256 _end_ts, uint256 _cap, address _target_address) {
+    function EloPlayToken(uint256 _start_ts, uint256 _end_ts, uint256 _cap, address _target_address, uint256 _usdethrate) {
         START_TS        = _start_ts;
         END_TS          = _end_ts;
         CAP             = _cap;
+        USDETHRATE      = _usdethrate;
         target_address  = _target_address;
     }
 
@@ -262,13 +269,24 @@ contract EloPlayToken is ERC20Token, Owned {
      * Update cap before crowdsale starts
      *
      * @param _cap          new crowdsale upper cap (in wei)
+     * @param _usdethrate   USD to ETH rate
      */
-    function updateCap(uint256 _cap) onlyOwner {
+    function updateCap(uint256 _cap, uint256 _usdethrate) onlyOwner {
         // Don't process if halted
         require(!halted);
         // Make sure crowdsale isnt started yet
         require(now < START_TS);
         CAP = _cap;
+        USDETHRATE = _usdethrate;
+    }
+
+    /**
+     * Get raised USD based on USDETHRATE
+     *
+     * @return            USD raised value
+     */
+    function totalUSD() constant returns (uint256) {
+        return totalEthers * USDETHRATE;
     }
 
     /**
