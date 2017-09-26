@@ -345,12 +345,14 @@ contract EloPlayToken is ERC20Token, Owned {
 
     /**
      * Owner to add precommitment funding token balance before the crowdsale commences
+     * Used for pre-sale commitments, added manually
      *
      * @param participant         address that will receive tokens
      * @param balance             number of tokens
+     * @param ethers         Ethers value (needed for stats)
      *
      */
-    function addPrecommitment(address participant, uint balance) onlyOwner {
+    function addPrecommitment(address participant, uint256 balance, uint256 ethers) onlyOwner {
         require(now < START_TS);
         require(balance > 0);
 
@@ -361,6 +363,9 @@ contract EloPlayToken is ERC20Token, Owned {
 
         totalSupply = totalSupply.add(balance);
         totalSupply = totalSupply.add(target_address_tokens);
+
+        // Add ETH raised to total
+        totalEthers = totalEthers.add(ethers);
 
         Transfer(0x0, participant, balance);
         Transfer(0x0, target_address, target_address_tokens);
