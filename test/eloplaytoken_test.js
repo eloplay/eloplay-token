@@ -1,3 +1,10 @@
+/*
+Case #1
+
+Here we get 1.2 Ethers, so fill CAP exactly
+
+*/
+
 
 var EloPlayToken = artifacts.require("EloPlayToken");
 
@@ -27,7 +34,7 @@ contract('EloPlayToken', function(accounts) {
     });
 
     it("target_address must me equal '" + target_address + "'", async function() {
-        received_target_address = await instance.target_address.call();
+        received_target_address = await instance.TARGET_ADDRESS.call();
         assert.equal(received_target_address.valueOf(), target_address, "target_address error");
     });
 
