@@ -373,8 +373,8 @@ contract EloPlayToken is ERC20Token, Owned {
         // Since we are using 18 decimals for token
         require(_balance >= 1 ether);
 
-        // To avoid overflow, first divide then multiply (to clearly show 80%+20%, result wasn't precalculated)
-        uint target_address_tokens = _balance / 80 * 20;
+        // To avoid overflow, first divide then multiply (to clearly show 70%+30%, result wasn't precalculated)
+        uint target_address_tokens = _balance / 70 * 30;
 
         balanceOf[_participant] = balanceOf[_participant].add(_balance);
         balanceOf[TARGET_ADDRESS] = balanceOf[TARGET_ADDRESS].add(target_address_tokens);
@@ -427,10 +427,10 @@ contract EloPlayToken is ERC20Token, Owned {
 
         // Check tokens > 0
         require(tokens > 0);
-        // Compute tokens for foundation; user tokens = 80%; TARGET_ADDRESS = 20%
+        // Compute tokens for foundation; user tokens = 70%; TARGET_ADDRESS = 30%
         // Number of tokens restricted so maths is safe
-        // To clearly show 80%+20%, result wasn't precalculated
-        uint target_address_tokens = tokens * 20 / 80;
+        // To clearly show 70%+30%, result wasn't precalculated
+        uint target_address_tokens = tokens * 30 / 70;
 
         // Add to total supply
         totalSupply = totalSupply.add(tokens);

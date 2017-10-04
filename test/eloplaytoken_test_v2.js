@@ -33,7 +33,7 @@ contract('EloPlayToken', function(accounts) {
         }
     });
 
-    it("1.15 ETH transaction " + contributor + ", value: 1.15 ETH, must receive 13800 tokens + 3450 tokens goes to multisig wallet ", async function() {
+    it("1.15 ETH transaction " + contributor + ", value: 1.15 ETH, must receive 13800 tokens + 13800*30/70 tokens goes to multisig wallet ", async function() {
         var target_balance_before = web3.fromWei(web3.eth.getBalance(target_address), 'ether');
         data = await instance.sendTransaction({'from': contributor, 'value': web3.toWei('1.15', 'ether')});
         var target_balance_after = web3.fromWei(web3.eth.getBalance(target_address), 'ether');
@@ -41,7 +41,9 @@ contract('EloPlayToken', function(accounts) {
         var tokens_target_balance = await instance.balanceOf.call(target_address);
         assert.equal((parseFloat(target_balance_before*100) + 115), parseFloat(target_balance_after*100), "target balance error"); // to fix float inaccuracy, everything is multiplied by 10
         assert.equal(web3.fromWei(tokens_contributor_balance.valueOf(), 'ether'), 13800 , "contributor tokens error");
-        assert.equal(web3.fromWei(tokens_target_balance.valueOf(), 'ether'), 3450, "owner tokens error");
+        if (web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 13800*30/70 > 0.00000001) {
+            assert(false, "owner tokens error");
+        }
     });
 
     it("token transfer denial before cap filled from " + contributor_2 + " to " + contributor + ", tokens: 10", async function() {
@@ -55,7 +57,7 @@ contract('EloPlayToken', function(accounts) {
         }
     });
 
-    it("0.1 ETH transaction to fill the cap " + contributor_2 + ", value: 0.1ETH, must receive 1200 tokens + 300 tokens goes to multisig wallet ", async function() {
+    it("0.1 ETH transaction to fill the cap " + contributor_2 + ", value: 0.1ETH, must receive 1200 tokens + 1200*30/70 tokens goes to multisig wallet ", async function() {
         var target_balance_before = web3.fromWei(web3.eth.getBalance(target_address), 'ether');
         data = await instance.sendTransaction({'from': contributor_2, 'value': web3.toWei('0.1', 'ether')});
         var target_balance_after = web3.fromWei(web3.eth.getBalance(target_address), 'ether');
@@ -63,7 +65,9 @@ contract('EloPlayToken', function(accounts) {
         var tokens_target_balance = await instance.balanceOf.call(target_address);
         assert.equal((parseFloat(target_balance_before*10) + 1), parseFloat(target_balance_after*10), "target balance error"); // to fix float inaccuracy, everything is multiplied by 10
         assert.equal(web3.fromWei(tokens_contributor_balance.valueOf(), 'ether'), 1200 , "contributor tokens error");
-        assert.equal(web3.fromWei(tokens_target_balance.valueOf(), 'ether'), 3750, "owner tokens error"); // 3450 + 300
+        if (web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 13800*30/70 - 1200*30/70 > 0.00000001) {
+            assert(false, "owner tokens error");
+        }
     });
 
     it("transaction denial after cap filled from " + contributor_2 + ", value: 0.1ETH", async function() {
@@ -80,7 +84,7 @@ contract('EloPlayToken', function(accounts) {
     it("check crowdsale results after cap filled", async function() {
         var total_supply = await instance.totalSupply.call();
         total_supply = web3.fromWei(total_supply.valueOf(), 'ether');
-        assert.equal(total_supply, (13800 + 3450 + 1200 + 300), "total supply tokens error"); // all token generated
+        assert.equal(total_supply, (13800 + 13800*30/70 + 1200 + 1200*30/70), "total supply tokens error"); // all token generated
         total_ethers = await instance.totalEthers.call();
         assert.equal(web3.fromWei(total_ethers.valueOf(), 'ether'), 1.25, "total ethers error");
     });
