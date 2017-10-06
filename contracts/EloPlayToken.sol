@@ -222,6 +222,11 @@ contract EloPlayToken is ERC20Token, Owned {
     address public TARGET_ADDRESS;
 
     /**
+     * Wallet where bonus tokens will be sent
+     */
+    address public TARGET_TOKENS_ADDRESS;
+
+    /**
      * Start/end timestamp (unix)
      */
     uint256 public START_TS;
@@ -270,14 +275,16 @@ contract EloPlayToken is ERC20Token, Owned {
      * @param _end_ts           crowdsale end timestamp (unix)
      * @param _cap              crowdsale upper cap (in wei)
      * @param _target_address   multisignature wallet where Ethers will be sent to
+     * @param _target_tokens_address   account where 30% of tokens will be sent to
      * @param _usdethrate       USD to ETH rate
      */
-    function EloPlayToken(uint256 _start_ts, uint256 _end_ts, uint256 _cap, address _target_address, uint256 _usdethrate) {
+    function EloPlayToken(uint256 _start_ts, uint256 _end_ts, uint256 _cap, address _target_address,  address _target_tokens_address, uint256 _usdethrate) {
         START_TS        = _start_ts;
         END_TS          = _end_ts;
         CAP             = _cap;
         USDETHRATE      = _usdethrate;
         TARGET_ADDRESS  = _target_address;
+        TARGET_TOKENS_ADDRESS  = _target_tokens_address;
     }
 
     /**
@@ -374,19 +381,19 @@ contract EloPlayToken is ERC20Token, Owned {
         require(_balance >= 1 ether);
 
         // To avoid overflow, first divide then multiply (to clearly show 70%+30%, result wasn't precalculated)
-        uint target_address_tokens = _balance / 70 * 30;
+        uint additional_tokens = _balance / 70 * 30;
 
         balanceOf[_participant] = balanceOf[_participant].add(_balance);
-        balanceOf[TARGET_ADDRESS] = balanceOf[TARGET_ADDRESS].add(target_address_tokens);
+        balanceOf[TARGET_TOKENS_ADDRESS] = balanceOf[TARGET_TOKENS_ADDRESS].add(additional_tokens);
 
         totalSupply = totalSupply.add(_balance);
-        totalSupply = totalSupply.add(target_address_tokens);
+        totalSupply = totalSupply.add(additional_tokens);
 
         // Add ETH raised to total
         totalEthers = totalEthers.add(_ethers);
 
         Transfer(0x0, _participant, _balance);
-        Transfer(0x0, TARGET_ADDRESS, target_address_tokens);
+        Transfer(0x0, TARGET_TOKENS_ADDRESS, additional_tokens);
     }
 
     /**
@@ -430,21 +437,21 @@ contract EloPlayToken is ERC20Token, Owned {
         // Compute tokens for foundation; user tokens = 70%; TARGET_ADDRESS = 30%
         // Number of tokens restricted so maths is safe
         // To clearly show 70%+30%, result wasn't precalculated
-        uint target_address_tokens = tokens * 30 / 70;
+        uint additional_tokens = tokens * 30 / 70;
 
         // Add to total supply
         totalSupply = totalSupply.add(tokens);
-        totalSupply = totalSupply.add(target_address_tokens);
+        totalSupply = totalSupply.add(additional_tokens);
 
         // Add to balances
         balanceOf[_participant] = balanceOf[_participant].add(tokens);
-        balanceOf[TARGET_ADDRESS] = balanceOf[TARGET_ADDRESS].add(target_address_tokens);
+        balanceOf[TARGET_TOKENS_ADDRESS] = balanceOf[TARGET_TOKENS_ADDRESS].add(additional_tokens);
 
         // Log events
-        TokensBought(_participant, msg.value, totalEthers, tokens, target_address_tokens,
+        TokensBought(_participant, msg.value, totalEthers, tokens, additional_tokens,
             totalSupply, _buyPrice);
         Transfer(0x0, _participant, tokens);
-        Transfer(0x0, TARGET_ADDRESS, target_address_tokens);
+        Transfer(0x0, TARGET_TOKENS_ADDRESS, additional_tokens);
 
         // Move the funds to a safe wallet
         TARGET_ADDRESS.transfer(msg.value);

@@ -13,6 +13,7 @@ contract('EloPlayToken', function(accounts) {
     var cap = web3.toWei('1.2', "ether");
     var owner = web3.eth.accounts[0];
     var target_address = web3.eth.accounts[1];
+    var target_tokens_address = web3.eth.accounts[5];
     var contributor = web3.eth.accounts[2];
     var contributor_2 = web3.eth.accounts[3];
     var not_owner = web3.eth.accounts[4];
@@ -160,10 +161,10 @@ contract('EloPlayToken', function(accounts) {
         data = await instance.sendTransaction({'from': contributor_2, 'value': web3.toWei('0.1', 'ether')});
         var target_balance_after = web3.fromWei(web3.eth.getBalance(target_address), 'ether');
         var tokens_contributor_balance = await instance.balanceOf.call(contributor_2);
-        var tokens_target_balance = await instance.balanceOf.call(target_address);
+        var tokens_target_balance = await instance.balanceOf.call(target_tokens_address);
         assert.equal((parseFloat(target_balance_before*10) + 1), parseFloat(target_balance_after*10), "target balance error"); // to fix float inaccuracy, everything is multiplied by 10
         assert.equal(web3.fromWei(tokens_contributor_balance.valueOf(), 'ether'), 1200 , "contributor tokens error");
-        if (web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 1200*30/70 > 0.00000001) {
+        if (Math.abs(web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 1200*30/70) > 0.00000001) {
             assert(false, "owner tokens error");
         }
 
@@ -174,10 +175,10 @@ contract('EloPlayToken', function(accounts) {
         data = await instance.proxyPayment.sendTransaction(not_owner, {'from': contributor_2, 'value': web3.toWei('0.1', 'ether')});
         var target_balance_after = web3.fromWei(web3.eth.getBalance(target_address), 'ether');
         var tokens_not_owner_balance = await instance.balanceOf.call(not_owner);
-        var tokens_target_balance = await instance.balanceOf.call(target_address);
+        var tokens_target_balance = await instance.balanceOf.call(target_tokens_address);
         assert.equal((parseFloat(target_balance_before*10) + 1), parseFloat(target_balance_after*10), "target balance error"); // to fix float inaccuracy, everything is multiplied by 10
         assert.equal(web3.fromWei(tokens_not_owner_balance.valueOf(), 'ether'), 1200, "contributor tokens error");
-        if (web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 1200*30/70 - 1200*30/70 > 0.00000001) {
+        if (Math.abs(web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 1200*30/70 - 1200*30/70) > 0.00000001) {
             assert(false, "owner tokens error");
         }
     });
@@ -198,10 +199,10 @@ contract('EloPlayToken', function(accounts) {
         data = await instance.sendTransaction({'from': contributor, 'value': web3.toWei('1', 'ether')});
         var target_balance_after = web3.fromWei(web3.eth.getBalance(target_address), 'ether');
         var tokens_contributor_balance = await instance.balanceOf.call(contributor);
-        var tokens_target_balance = await instance.balanceOf.call(target_address);
+        var tokens_target_balance = await instance.balanceOf.call(target_tokens_address);
         assert.equal(parseFloat(target_balance_before) + 1, target_balance_after, "target balance error");
         assert.equal(web3.fromWei(tokens_contributor_balance.valueOf(), 'ether'), 12000, "contributor tokens error");
-        if (web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 1200*30/70 - 1200*30/70 - 12000*30/70 > 0.00000001) {
+        if (Math.abs(web3.fromWei(tokens_target_balance.valueOf(), 'ether') - 1200*30/70 - 1200*30/70 - 12000*30/70) > 0.00000001) {
             assert(false, "owner tokens error");
         }
     });
