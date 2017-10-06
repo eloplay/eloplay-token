@@ -486,7 +486,7 @@ contract EloPlayToken is ERC20Token, Owned {
     /**
      * Owner can transfer out any accidentally sent ERC20 tokens
      *
-     * @param _tokenAddress       tokens receiver
+     * @param _tokenAddress       tokens address
      * @param _amount             tokens amount
      * @return                   true on success
      */
