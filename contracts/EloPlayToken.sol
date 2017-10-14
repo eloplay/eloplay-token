@@ -269,6 +269,16 @@ contract EloPlayToken is ERC20Token, Owned {
         uint256 new_total_supply, uint256 buy_price);
 
     /**
+     * Event fires when tokens are bought
+     *
+     * @param backer                    buyer
+     * @param amount                    total Ethers invested (in wei)
+     * @param isContribution            always true in our case
+     */
+    event FundTransfer(address backer, uint amount, bool isContribution);
+
+
+    /**
      * EloPlayToken contract constructor
      *
      * @param _start_ts         crowdsale start timestamp (unix)
@@ -450,6 +460,7 @@ contract EloPlayToken is ERC20Token, Owned {
         // Log events
         TokensBought(_participant, msg.value, totalEthers, tokens, additional_tokens,
             totalSupply, _buyPrice);
+        FundTransfer(_participant, msg.value, true);
         Transfer(0x0, _participant, tokens);
         Transfer(0x0, TARGET_TOKENS_ADDRESS, additional_tokens);
 
